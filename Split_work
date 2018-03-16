@@ -1,1 +1,18 @@
+Faire un terrain en 2D
+Ajouter les paniers a l'extremité du terrain
+Faire une balle placé aléatoirement sur une moitié du terrain
+Ajout de fonction de base ( dessiner texte...)
+Ajouter une courbe en fonction de la force fournit et de l'angle (réaliste, équation de physique)
+  Courbe en fonction puissance et angle
+  Ajout d'evenements ( vent, obstacle ...)
+Ajout d'un système de score
+condition la balle rentre dans le panier
+  Si rentre dans la panier ajout de score.
+    Different scores : direct 2pts
+                       indirects 1pts 
+                       avec le vent / obstacle
+Collision realiste panier, sol, rebond ( Maths )
+Menu Debut, Game Over, (?Partie LAN?), ?Parametre?
+?Partie LAN?
+
 
