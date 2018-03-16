@@ -16,7 +16,6 @@ size = (SCREENWIDTH, SCREENHEIGHT)
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Basket Game")
 
-# Allowing the user to close the window...
 playing = True
 clock = pygame.time.Clock()
 
