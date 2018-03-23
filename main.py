@@ -10,8 +10,8 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
 
-SCREENWIDTH = 720
-SCREENHEIGHT = 1024
+SCREENWIDTH = 1280
+SCREENHEIGHT = 720
 
 size = (SCREENWIDTH, SCREENHEIGHT)
 screen = pygame.display.set_mode(size)
@@ -47,8 +47,8 @@ class Panier(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/panier_basket.png")
 
         self.rect = self.image.get_rect()
-        self.rect.x = 0
-        self.rect.y = 0
+        self.rect.x = -70
+        self.rect.y = 250
 
 
 # References aux classes
