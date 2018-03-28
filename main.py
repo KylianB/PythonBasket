@@ -1,4 +1,6 @@
 import pygame
+import math
+
 
 pygame.init()
 
@@ -17,6 +19,7 @@ size = (SCREENWIDTH, SCREENHEIGHT)
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Basket Game")
 
+t = 0
 # Classes
 
 
@@ -27,17 +30,18 @@ class BasketBall(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/Basketball.png")
 
         self.rect = self.image.get_rect()
-        self.rect.x = 50
-        self.rect.y = 50
+        self.rect.x = 900
+        self.rect.y = 500
 
     def update(self):
+        global t
         pass
-        # if self.rect.y == 0:
-        #     self.rect.y += 2
-        # while self.rect.y != 0:
-        #     pass
-        # if self.rect.y == 0:
-        #     self.rect.y += 2
+        t += 0.5
+        V0 = 1
+        alpha = 2
+        h = self.rect.y
+        self.rect.x += V0 * math.cos(alpha) * t
+        self.rect.y += (-10 * t**2)/(2 + (V0 + math.sin(alpha) * t) + h )
 
 
 class Panier(pygame.sprite.Sprite):
@@ -47,8 +51,8 @@ class Panier(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/panier_basket.png")
 
         self.rect = self.image.get_rect()
-        self.rect.x = -70
-        self.rect.y = 250
+        self.rect.x = -40
+        self.rect.y = 100
 
 
 # References aux classes
