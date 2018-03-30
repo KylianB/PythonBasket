@@ -1,7 +1,6 @@
 import pygame
 import math
 
-
 pygame.init()
 
 
@@ -19,7 +18,28 @@ size = (SCREENWIDTH, SCREENHEIGHT)
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Basket Game")
 
-t = 0
+vitesse = [20, -30]
+
+
+def draw_life_bar(surf, x, y, life):
+    """
+    Dessine la barre de vie
+    :param surf: surface de dessin
+    :param x: int
+    :param y: int
+    :param life: int
+    :return:
+    """
+    if life < 0:
+        life = 0
+    BAR_LENGHT = 100
+    BAR_HEIGHT = 10
+    fill = (life / 1000) * BAR_LENGHT
+    outline_rect = pygame.Rect(x, y, BAR_LENGHT, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    pygame.draw.rect(surf, GREEN, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+
 # Classes
 
 
@@ -30,18 +50,24 @@ class BasketBall(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/Basketball.png")
 
         self.rect = self.image.get_rect()
-        self.rect.x = 900
-        self.rect.y = 500
+        self.life = 1000
+        self.position = [0, SCREENHEIGHT -1]
+        self.rect.x = self.position[0]
+        self.rect.y = self.position[1]
 
     def update(self):
-        global t
-        pass
-        t += 0.5
-        V0 = 1
-        alpha = 2
-        h = self.rect.y
-        self.rect.x += V0 * math.cos(alpha) * t
-        self.rect.y += (-10 * t**2)/(2 + (V0 + math.sin(alpha) * t) + h )
+        self.evolution()
+
+    def evolution(self):
+        global vitesse
+        self.position[0] += vitesse[0]
+        self.position[1] += vitesse[1]
+
+        vitesse[1] += 0.5
+        vitesse[0] *= 0.99
+        vitesse[1] *= 0.99
+        self.rect.x = self.position[0]
+        self.rect.y = self.position[1]
 
 
 class Panier(pygame.sprite.Sprite):
@@ -51,7 +77,7 @@ class Panier(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/panier_basket.png")
 
         self.rect = self.image.get_rect()
-        self.rect.x = -40
+        self.rect.x = 1000
         self.rect.y = 100
 
 
@@ -86,7 +112,7 @@ while playing:
 
     ball.update()
     # Couleurs fond
-    screen.fill(WHITE)
+    screen.fill(BLACK)
     all_sprite_group.draw(screen)
 
     # Refresh
