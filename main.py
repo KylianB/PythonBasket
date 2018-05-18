@@ -4,6 +4,8 @@ import random
 
 pygame.init()
 
+# Couleurs
+
 GREEN = (20, 255, 140)
 GREY = (210, 210, 210)
 WHITE = (255, 255, 255)
@@ -11,85 +13,100 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
 
+# Taille ecran
 SCREENWIDTH = 1280
 SCREENHEIGHT = 720
 
 size = (SCREENWIDTH, SCREENHEIGHT)
-screen = pygame.display.set_mode(size)
-pygame.display.set_caption("Basket Game")
+screen = pygame.display.set_mode(size)  # Definition ecran
+pygame.display.set_caption("Basket Game")  # Titre fenetre
+
+#  Fonctions
 
 
 def print_text(text, x, y, fontsize, color):
-    myfont = pygame.font.Font(None, fontsize)
+    """ Fonction afficher texte
+    Permet l'affichage du texte (text ) a une position
+    x et y avec une taille de police et une couleur
+    """
+    myfont = pygame.font.Font(None, fontsize)  # Police ecriture
     text_display = myfont.render(text, True, color)
-    return screen.blit(text_display, (x, y))
+    return screen.blit(text_display, (x, y))  # Affichage du texte sur ecran
 
 
-def draw_life_bar(surf, x, y, life):
+def restart():
+    """ Fonction pour relancer la balle.
     """
-    Dessine la barre de vie
-    :param surf: surface de dessin
-    :param x: int
-    :param y: int
-    :param life: int
-    :return:
-    """
-    if life < 0:
-        life = 0
-    BAR_LENGHT = 100
-    BAR_HEIGHT = 10
-    fill = (life / 1000) * BAR_LENGHT
-    outline_rect = pygame.Rect(x, y, BAR_LENGHT, BAR_HEIGHT)
-    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
-    pygame.draw.rect(surf, GREEN, fill_rect)
-    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+    global start, show_line, pts_list
+    start = False
+    ball.reset()
+    ball.position = [random.randint(10, 600), random.randint(50, 620)]  # Position de la balle au depart aleatoire
+    ball.rect.x = ball.position[0]
+    ball.rect.y = ball.position[1]
+    show_line = True
 
 
-# Classes
+#  Classes
+
 
 class BasketBall(pygame.sprite.Sprite):
+    """Classe de la balle
+    Contient les differente fonction de la balle
+    """
     def __init__(self):
+        """
+        Parametre de base de la balle
+        """
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("images/Basketball.png")
-
+        self.image = pygame.image.load("images/Basketball.png")  # Image de la balle
         self.rect = self.image.get_rect()
-        self.life = 1000
-        self.position = [random.randint(10, 600), random.randint(50, 620)]
+        self.position = [random.randint(10, 600), random.randint(50, 620)]  # Position de la balle au depart aleatoire
         self.rect.x = self.position[0]
         self.rect.y = self.position[1]
-        self.pos = [0, 0]
+        self.pos = [0, 0]  # Pour la previsualisation
         self.pos[0] = self.position[0]
         self.pos[1] = self.position[1]
 
     def update(self):
+        """Fonction d'appel des fonctions principales
+        de la classe.
+        """
         global start
         self.collide()
-        # self.preview()
         if start:
             self.evolution()
 
     def evolution(self):
+        """Fonction pour l'evolution des positions de
+        la balle.
+        En fonction des frottements, apesanteur.
+        """
         global vitesse
         self.position[0] += vitesse[0]
         self.position[1] += vitesse[1]
 
-        vitesse[1] += 4
-        vitesse[0] *= 0.99
+        vitesse[1] += 4  # Apesanteur
+        vitesse[0] *= 0.99  # Frottements
         vitesse[1] *= 0.99
-        self.rect.x = self.position[0]
+        self.rect.x = self.position[0]  # Application au coordonnees de la balle
         self.rect.y = self.position[1]
-        if self.rect.y >= 720:
-            self.rect.y = 720
+        if self.rect.y >= 720:  # Si la balle depasse le bas de l'ecran => rejoue
+            restart()
 
     def preview(self):
+        """Creation d'une liste de points permettant le dessin
+        d'une courbe de previsualisation de la trajectoire.
+        """
         global pts_list, force, alpha
 
-        pts_list = [[self.position[0], self.position[1]]]
-        alphaEnRad = math.radians(alpha)
-        vitesse_prev = [math.cos(alphaEnRad) * force, -math.sin(alphaEnRad) * force]
-        nb_points = 20
+        pts_list = [[self.position[0], self.position[1]]]  # Liste des points
+        alpha_rad = math.radians(alpha)  # convertion de l'angle en degree vers radian
+        vitesse_prev = [math.cos(alpha_rad) * force, -math.sin(alpha_rad) * force]  # Vecteur vitesse independant
+        nb_points = 20  # Nombre de points previsualiser
 
         for i in range(nb_points):
+            """Meme fonctionnement que la fonction evolution 
+            """
             self.pos[0] += vitesse_prev[0]
             self.pos[1] += vitesse_prev[1]
 
@@ -100,19 +117,21 @@ class BasketBall(pygame.sprite.Sprite):
             pts_list += [[self.pos[0], self.pos[1]]]
 
     def reset(self):
-
+        """Reset de la courbe de previsualisation
+        """
         self.pos[0] = self.position[0]
         self.pos[1] = self.position[1]
 
     def collide(self):
+        """ Classe pour gerer les collision de la balle et des objets
+        => Sol, Panier
+        """
         global vitesse, force
+        # Si la balle entre en collision avec le groupe de sprite collide_group
         ball_collide = pygame.sprite.spritecollide(self, collide_group, False)
         if ball_collide:
-            coeff_rebondy = 0.9
-            coeff_rebondx = 0.9
-            vitesse = [vitesse[0] * coeff_rebondy, -vitesse[1] * coeff_rebondx]
-            force = force * 0.9
-            vitesse = [math.cos(alphaRad) * force, -math.sin(alphaRad) * force]
+            force = force * 0.9  # On reduit la force
+            vitesse = [math.cos(alphaRad) * force, -math.sin(alphaRad) * force]  # On modifie le vecteur vitesse
 
 
 class Panier(pygame.sprite.Sprite):
@@ -212,12 +231,7 @@ while playing:
                 show_line = False
 
             if event.key == pygame.K_r:
-                start = False
-                show_line = True
-                ball.rect.x = 10
-                ball.rect.y = 600
-                ball.reset()
-                ball.position = [ball.rect.x, ball.rect.y]
+                restart()
 
     key = pygame.key.get_pressed()
     if key[pygame.K_LEFT]:
