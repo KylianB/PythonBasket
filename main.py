@@ -99,10 +99,10 @@ class BasketBall(pygame.sprite.Sprite):
         """
         global pts_list, force, alpha
 
-        pts_list = [[self.position[0], self.position[1]]]  # Liste des points
         alpha_rad = math.radians(alpha)  # convertion de l'angle en degree vers radian
         vitesse_prev = [math.cos(alpha_rad) * force, -math.sin(alpha_rad) * force]  # Vecteur vitesse independant
         nb_points = 20  # Nombre de points previsualiser
+        pts_list = []  # Liste de points
 
         for i in range(nb_points):
             """Meme fonctionnement que la fonction evolution 
@@ -135,6 +135,9 @@ class BasketBall(pygame.sprite.Sprite):
 
 
 class Panier(pygame.sprite.Sprite):
+    """ Classe du panier
+    Le definit comme un sprite pour une gestion des collision plus simple.
+    """
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("images/panier_basket_base.png")
@@ -144,6 +147,8 @@ class Panier(pygame.sprite.Sprite):
 
 
 class Panier2(Panier):
+    """ Herite de Panier()
+    """
     def __init__(self):
         Panier.__init__(self)
         self.image = pygame.image.load("images/panier_basket_base2.png")
@@ -152,6 +157,8 @@ class Panier2(Panier):
 
 
 class Panier3(Panier):
+    """ Herite de Panier()
+    """
     def __init__(self):
         Panier.__init__(self)
         self.image = pygame.image.load("images/panier_basket_base3.png")
@@ -159,15 +166,9 @@ class Panier3(Panier):
         self.rect.y = 255
 
 
-class Panier4(Panier):
-    def __init__(self):
-        Panier.__init__(self)
-        self.image = pygame.image.load("images/panier_basket_base4.png")
-        self.rect.x = 1009
-        self.rect.y = 255
-
-
-class Panier5(Panier):
+class PanierPanel(Panier):
+    """ Herite de Panier()
+    """
     def __init__(self):
         Panier.__init__(self)
         self.image = pygame.image.load("images/panier_basket_pannel.png")
@@ -177,52 +178,49 @@ class Panier5(Panier):
 
 class Sol(pygame.sprite.Sprite):
     def __init__(self):
+        """ Classse du sol
+        Le definit comme un sprite pour les collisions.
+        """
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("images/Sol.png")
         self.rect = self.image.get_rect()
         self.rect.x = 0
-        self.rect.y = 700  # References aux classes
+        self.rect.y = 700
 
 
 # References aux classes
+
 ball = BasketBall()
 panier = Panier()
 panier2 = Panier2()
 panier3 = Panier3()
-panier4 = Panier4()
-panier5 = Panier5()
+panier4 = PanierPanel()
 sol = Sol()
 
 # Les sprites du jeu
-balls_group = pygame.sprite.Group()
-balls_group.add(ball)
-
 collide_group = pygame.sprite.Group()
-collide_group.add(sol, panier, panier2, panier4, panier5)
+collide_group.add(sol, panier, panier2)
 
-collide_score = pygame.sprite.Group()
-collide_score.add(panier3)
 
 all_sprite_group = pygame.sprite.Group()
-all_sprite_group.add(balls_group, collide_group, collide_score)
+all_sprite_group.add(ball, collide_group, panier3, panier4)
 
 force = 30
 alpha = 20
 alphaRad = math.radians(alpha)
 
-###
 start = False
 show_line = True
 playing = True
 clock = pygame.time.Clock()
 ball.preview()
 
-while playing:
+while playing:  # Boucle principale
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             playing = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_x:  # X pour fermer le jeu
+            if event.key == pygame.K_ESCAPE:  # Echapp pour fermer le jeu
                 playing = False
             if event.key == pygame.K_SPACE:
                 alphaRad = math.radians(alpha)
@@ -260,11 +258,11 @@ while playing:
     if alpha < 0:
         alpha = 0
 
-
     ball.update()
     # Couleurs fond
-    fond = pygame.image.load("images/plage.png")
-    screen.blit(fond, (0, 0))
+    # fond = pygame.image.load("images/plage.png")
+    # screen.blit(fond, (0, 0))
+    screen.fill(BLACK)
     all_sprite_group.draw(screen)
     print_text(str(format(force, '.2f')), 900, 10, 20, WHITE)
     print_text(str(format(alpha, '.2f')), 900, 30, 20, WHITE)
