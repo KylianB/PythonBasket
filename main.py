@@ -73,6 +73,7 @@ class BasketBall(pygame.sprite.Sprite):
         """
         global start
         self.collide()
+        self.marque()
         if start:
             self.evolution()
 
@@ -90,7 +91,7 @@ class BasketBall(pygame.sprite.Sprite):
         vitesse[1] *= 0.99
         self.rect.x = self.position[0]  # Application au coordonnees de la balle
         self.rect.y = self.position[1]
-        if self.rect.y >= 720:  # Si la balle depasse le bas de l'ecran => rejoue
+        if self.rect.y >= 720 or self.rect.x >= 1280:  # Si la balle depasse le bas/cote de l'ecran => rejoue
             restart()
 
     def preview(self):
@@ -130,8 +131,24 @@ class BasketBall(pygame.sprite.Sprite):
         # Si la balle entre en collision avec le groupe de sprite collide_group
         ball_collide = pygame.sprite.spritecollide(self, collide_group, False)
         if ball_collide:
-            force = force * 0.9  # On reduit la force
+            force = force * 0.8  # On reduit la force
             vitesse = [math.cos(alphaRad) * force, -math.sin(alphaRad) * force]  # On modifie le vecteur vitesse
+
+        ball_panel = pygame.sprite.spritecollide(self, collide_panel, False)
+        if ball_panel:
+            force *= 0.8
+            vitesse = [-(math.cos(alphaRad) * force), -math.sin(alphaRad) * force]  # On modifie le vecteur vitesse
+
+    def marque(self):
+        """ Fonction permet de savoir quand le joueur
+        marque un panier.
+        """
+        global score, force
+        ball_panier = pygame.sprite.spritecollide(self, collide_marque, False)
+        if ball_panier:
+            force *= 0.5
+            if self.rect.y >= 600:
+                score += 1
 
 
 class Panier(pygame.sprite.Sprite):
@@ -152,17 +169,7 @@ class Panier2(Panier):
     def __init__(self):
         Panier.__init__(self)
         self.image = pygame.image.load("images/panier_basket_base2.png")
-        self.rect.x = 1060
-        self.rect.y = 255
-
-
-class Panier3(Panier):
-    """ Herite de Panier()
-    """
-    def __init__(self):
-        Panier.__init__(self)
-        self.image = pygame.image.load("images/panier_basket_base3.png")
-        self.rect.x = 1019
+        self.rect.x = 1011
         self.rect.y = 255
 
 
@@ -193,21 +200,27 @@ class Sol(pygame.sprite.Sprite):
 ball = BasketBall()
 panier = Panier()
 panier2 = Panier2()
-panier3 = Panier3()
 panier4 = PanierPanel()
 sol = Sol()
 
 # Les sprites du jeu
 collide_group = pygame.sprite.Group()
-collide_group.add(sol, panier, panier2)
+collide_group.add(sol, panier)
 
+collide_marque = pygame.sprite.Group()
+collide_marque.add(panier2)
+
+collide_panel = pygame.sprite.Group()
+collide_panel.add(panier4)
 
 all_sprite_group = pygame.sprite.Group()
-all_sprite_group.add(ball, collide_group, panier3, panier4)
+all_sprite_group.add(ball, collide_group, collide_marque, panier4)
 
 force = 30
 alpha = 20
 alphaRad = math.radians(alpha)
+
+score = 0
 
 start = False
 show_line = True
@@ -250,7 +263,7 @@ while playing:  # Boucle principale
         ball.preview()
 
     if force > 100:
-        force = 1
+        force = 100
     if force < 0:
         force = 0
     if alpha > 90:
@@ -266,6 +279,7 @@ while playing:  # Boucle principale
     all_sprite_group.draw(screen)
     print_text(str(format(force, '.2f')), 900, 10, 20, WHITE)
     print_text(str(format(alpha, '.2f')), 900, 30, 20, WHITE)
+    print_text(str(score), 900, 50, 20, WHITE)
     if show_line:
         pygame.draw.lines(screen, WHITE, False, pts_list)
 
