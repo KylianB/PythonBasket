@@ -26,6 +26,7 @@ force = 30
 alpha = 20
 alphaRad = math.radians(alpha)
 son = pygame.mixer.Sound('son/sans_rebond.wav')
+life = 5
 score = 0
 
 size = (SCREENWIDTH, SCREENHEIGHT)
@@ -49,7 +50,7 @@ def print_text(text, x, y, fontsize, color):
 def restart():
     """ Fonction pour relancer la balle.
     """
-    global start, show_line, pts_list, restart, force, alpha
+    global start, show_line, pts_list, restart, force, alpha, life
     start = False
     ball.position = [random.randint(10, 600), random.randint(50, 620)]  # Position de la balle au depart aleatoire
     ball.rect.x = ball.position[0]
@@ -59,7 +60,11 @@ def restart():
     show_line = True
     force = 50
     alpha = 45
+    life -= 1
     ball.left = False
+    # if life <= 0:
+    #     fond = pygame.image.load("images/GAME OVER.png")
+    #     screen.blit(fond, (640, 320))
 
 
 def draw_force_bar(surf, x, y):
@@ -192,13 +197,16 @@ class BasketBall(pygame.sprite.Sprite):
         """ Fonction permet de savoir quand le joueur
         marque un panier.
         """
-        global score, force
+        global score, force, life
         ball_panier = pygame.sprite.collide_mask(self, panier3)
         if ball_panier and self.playing:
             force *= 0.5
             score += 2
             self.playing = False
+            life += 1
             son.play()
+            time.sleep(3)
+            restart()
 
 
 class SolidEntity(pygame.sprite.Sprite):
@@ -301,6 +309,7 @@ while playing:  # Boucle principale
     print_text(str(format(force, '.2f')), 120, 10, 20, WHITE)
     print_text(str(format(alpha, '.2f')), 120, 30, 20, WHITE)
     print_text(str(score), 120, 50, 20, WHITE)
+    print_text(str(life), 200, 50, 20, RED)
     print_text("Score", 80, 50, 20, WHITE)
     draw_force_bar(screen, 10, 10)
     draw_alpha_bar(screen, 10, 30)
